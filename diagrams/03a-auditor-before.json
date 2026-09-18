@@ -1,0 +1,130 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Gemma auditor card pipeline - BEFORE (2026-09-17 morning)",
+  "quality_profile": "showcase"
+ },
+ "components": [
+  {
+   "id": "lanes",
+   "type": "backend",
+   "label": "Lane O + Lane R",
+   "sublabel": "mesh-ownership, repeat-loop",
+   "pos": [
+    40,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "pile",
+   "type": "database",
+   "label": "out/*.jsonl",
+   "sublabel": "1,680 active cards, 3,973 lines",
+   "pos": [
+    300,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "digest",
+   "type": "backend",
+   "label": "gemma_digest.py",
+   "sublabel": "union-find clustering 0.90",
+   "pos": [
+    560,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "noise",
+   "type": "external",
+   "label": "digest noise",
+   "sublabel": "chain-merge blob piles",
+   "pos": [
+    830,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "rel",
+   "type": "database",
+   "label": "relation candidates",
+   "sublabel": "4,304 cards",
+   "pos": [
+    300,
+    400
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "dummy",
+   "type": "external",
+   "label": "ONE dummy hash",
+   "sublabel": "same key for all 4,304",
+   "pos": [
+    560,
+    400
+   ],
+   "size": [
+    200,
+    64
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "l1",
+   "from": "lanes",
+   "to": "pile"
+  },
+  {
+   "id": "p1",
+   "from": "pile",
+   "to": "digest",
+   "label": "read"
+  },
+  {
+   "id": "d1",
+   "from": "digest",
+   "to": "noise",
+   "label": "blob piles"
+  },
+  {
+   "id": "r1",
+   "from": "rel",
+   "to": "dummy",
+   "label": "one key"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "rose",
+   "title": "The pileup (measured)",
+   "items": [
+    "1,680 active cards dating to Jul 16; 2,293 empty _meta lines",
+    "4,304 relation cards shared ONE key: tombstones and dismissals silently defeated",
+    "Union-find chaining: one 0.90 bridge merges distinct piles into a blob"
+   ]
+  }
+ ]
+}

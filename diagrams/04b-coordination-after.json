@@ -1,0 +1,139 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Two-seat coordination - AFTER (task DAG + wrap-up ledger)",
+  "quality_profile": "showcase"
+ },
+ "components": [
+  {
+   "id": "dag",
+   "type": "backend",
+   "label": "active_task_dag.json",
+   "sublabel": "Kahn-validated, frontier dispatch",
+   "pos": [
+    40,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "t3",
+   "type": "backend",
+   "label": "T3 dag-comm-spec",
+   "sublabel": "antigravity, DONE",
+   "pos": [
+    300,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "t4",
+   "type": "backend",
+   "label": "T4 marlin-verify",
+   "sublabel": "marlin, DONE",
+   "pos": [
+    300,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "t5",
+   "type": "backend",
+   "label": "T5 pilot-integration",
+   "sublabel": "unblocked by T4",
+   "pos": [
+    300,
+    460
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "ledger",
+   "type": "database",
+   "label": "wrapup_ledger.jsonl",
+   "sublabel": "bounded <=500 chars",
+   "pos": [
+    560,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "resume",
+   "type": "backend",
+   "label": "resume path",
+   "sublabel": "reads last 3-5 entries",
+   "pos": [
+    830,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "d1",
+   "from": "dag",
+   "to": "t3"
+  },
+  {
+   "id": "d2",
+   "from": "dag",
+   "to": "t4"
+  },
+  {
+   "id": "d4",
+   "from": "t4",
+   "to": "t5",
+   "variant": "emphasis"
+  },
+  {
+   "id": "l1",
+   "from": "t3",
+   "to": "ledger"
+  },
+  {
+   "id": "l2",
+   "from": "t4",
+   "to": "ledger"
+  },
+  {
+   "id": "r1",
+   "from": "ledger",
+   "to": "resume",
+   "label": "context floor drop"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "First cycle executed 2026-09-18",
+   "items": [
+    "Their build unblocked my node; my completion unblocked theirs - zero ping-pong",
+    "Three-edge protocol: DAG-declared tasks, articulation-first probes, cycle guards",
+    "F1 found: unguarded cross-seat re-claim (third check-then-act instance); fix pending"
+   ]
+  }
+ ]
+}

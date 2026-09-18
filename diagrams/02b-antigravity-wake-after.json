@@ -1,0 +1,138 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Antigravity wake chain - AFTER (reactive + deterministic deadman)",
+  "quality_profile": "showcase"
+ },
+ "components": [
+  {
+   "id": "mail",
+   "type": "database",
+   "label": "direct mail queue",
+   "sublabel": "pending-direct.jsonl",
+   "pos": [
+    40,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "notify",
+   "type": "backend",
+   "label": "mail_notify daemon",
+   "sublabel": "PM2, watches log",
+   "pos": [
+    270,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "monitor",
+   "type": "backend",
+   "label": "session_monitor.py",
+   "sublabel": "reactive wake <1s",
+   "pos": [
+    520,
+    200
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "agy",
+   "type": "backend",
+   "label": "agy session",
+   "sublabel": "woken only on mail",
+   "pos": [
+    790,
+    200
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "deadman",
+   "type": "backend",
+   "label": "deadman cron 30-min",
+   "sublabel": "runs --check",
+   "pos": [
+    270,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "check",
+   "type": "backend",
+   "label": "--check deterministic",
+   "sublabel": "IDLE in <50ms, no LLM",
+   "pos": [
+    520,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "n1",
+   "from": "mail",
+   "to": "notify",
+   "label": "file event"
+  },
+  {
+   "id": "n2",
+   "from": "notify",
+   "to": "monitor",
+   "label": "poke"
+  },
+  {
+   "id": "m1",
+   "from": "monitor",
+   "to": "agy",
+   "label": "wake <1s",
+   "variant": "emphasis"
+  },
+  {
+   "id": "d1",
+   "from": "deadman",
+   "to": "check",
+   "label": "script run"
+  },
+  {
+   "id": "d2",
+   "from": "check",
+   "to": "monitor",
+   "label": "alert only if not IDLE"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "The fix (verified same-day)",
+   "items": [
+    "One background task, one lock, one offset file",
+    "LLM woken only when mail lands; deadman costs ~0 tokens when healthy",
+    "5-min cron sink deleted; deferral accounting resists zombie locks"
+   ]
+  }
+ ]
+}

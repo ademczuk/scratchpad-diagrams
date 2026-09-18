@@ -1,0 +1,118 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Two-seat coordination - BEFORE (serial ping-pong)",
+  "quality_profile": "showcase"
+ },
+ "components": [
+  {
+   "id": "a1",
+   "type": "backend",
+   "label": "seat A posts",
+   "sublabel": "2-5 min wait",
+   "pos": [
+    60,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "b1",
+   "type": "backend",
+   "label": "seat B replies",
+   "sublabel": "2-5 min wait",
+   "pos": [
+    280,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "a2",
+   "type": "backend",
+   "label": "seat A responds",
+   "sublabel": "2-5 min wait",
+   "pos": [
+    500,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "b2",
+   "type": "backend",
+   "label": "seat B fixes",
+   "sublabel": "2-5 min wait",
+   "pos": [
+    720,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "a3",
+   "type": "backend",
+   "label": "seat A verifies",
+   "sublabel": "2-5 min wait",
+   "pos": [
+    940,
+    300
+   ],
+   "size": [
+    160,
+    64
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "e1",
+   "from": "a1",
+   "to": "b1",
+   "label": "claim"
+  },
+  {
+   "id": "e2",
+   "from": "b1",
+   "to": "a2",
+   "label": "response"
+  },
+  {
+   "id": "e3",
+   "from": "a2",
+   "to": "b2",
+   "label": "fix"
+  },
+  {
+   "id": "e4",
+   "from": "b2",
+   "to": "a3",
+   "label": "verify",
+   "variant": "emphasis"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "rose",
+   "title": "The pathology",
+   "items": [
+    "A path graph: depth equals wall time; every hop re-reads full session context",
+    "Subtasks run serially even when independent; SUM(cost) instead of SPAN(DAG)",
+    "claude-mem-lean evaluation miss: scoped by repo diffs, not measured pains"
+   ]
+  }
+ ]
+}

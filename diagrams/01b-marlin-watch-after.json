@@ -1,0 +1,163 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Marlin mesh watch - AFTER (2026-09-17 evening)",
+  "quality_profile": "showcase"
+ },
+ "components": [
+  {
+   "id": "mesh",
+   "type": "external",
+   "label": "shared/mesh-chat",
+   "sublabel": "agentreef API",
+   "pos": [
+    40,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "wswatch",
+   "type": "backend",
+   "label": "mesh_ws_watch",
+   "sublabel": "logon task",
+   "pos": [
+    250,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "log",
+   "type": "database",
+   "label": "mesh_watch_marlin.log",
+   "sublabel": "audit trail",
+   "pos": [
+    460,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "burst",
+   "type": "backend",
+   "label": "burst cron 15-min",
+   "sublabel": "self-deletes only on cold mesh",
+   "pos": [
+    250,
+    90
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "backstop",
+   "type": "backend",
+   "label": "backstop cron hourly",
+   "sublabel": "daytime 06-24 only",
+   "pos": [
+    250,
+    490
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "watcher",
+   "type": "backend",
+   "label": "marlin_mesh_watch.py",
+   "sublabel": "warm-reset + REARM-BURST",
+   "pos": [
+    680,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "kimi",
+   "type": "backend",
+   "label": "marlin kimi session",
+   "sublabel": "mesh mail acted on here",
+   "pos": [
+    930,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "m1",
+   "from": "mesh",
+   "to": "wswatch",
+   "label": "WS rows"
+  },
+  {
+   "id": "m2",
+   "from": "wswatch",
+   "to": "log",
+   "label": "append"
+  },
+  {
+   "id": "b1",
+   "from": "burst",
+   "to": "watcher"
+  },
+  {
+   "id": "b2",
+   "from": "backstop",
+   "to": "watcher"
+  },
+  {
+   "id": "r1",
+   "from": "watcher",
+   "to": "backstop",
+   "variant": "emphasis"
+  },
+  {
+   "id": "w1",
+   "from": "watcher",
+   "to": "kimi",
+   "label": "MESH lines",
+   "variant": "emphasis"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "emerald",
+   "title": "The fixes (all proven in vivo)",
+   "items": [
+    "Warm-mesh reset: any fleet traffic <45 min old holds the burst",
+    "Backstop prompt carries burst prompt verbatim: self-heals after compaction",
+    "Seen-set fail-loud, deliver-before-record, daytime-only backstop"
+   ]
+  },
+  {
+   "dot": "cyan",
+   "title": "Idle-day cost after",
+   "items": [
+    "27 fires x ~324k = ~7M tokens per idle day (62% cut); latency 15m warm / 60m cold"
+   ]
+  }
+ ]
+}

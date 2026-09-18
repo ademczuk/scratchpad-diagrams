@@ -1,0 +1,98 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Antigravity wake chain - BEFORE (5-minute cron sink)",
+  "quality_profile": "showcase"
+ },
+ "components": [
+  {
+   "id": "mail",
+   "type": "database",
+   "label": "direct mail queue",
+   "sublabel": "pending-direct.jsonl",
+   "pos": [
+    40,
+    480
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "cron",
+   "type": "backend",
+   "label": "schedule cron 5-min",
+   "sublabel": "harness schedule",
+   "pos": [
+    270,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "turn",
+   "type": "backend",
+   "label": "full LLM turn",
+   "sublabel": "every fire, empty or not",
+   "pos": [
+    520,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "agy",
+   "type": "backend",
+   "label": "agy session",
+   "sublabel": "context bloat 576 empty turns/day",
+   "pos": [
+    790,
+    300
+   ],
+   "size": [
+    170,
+    64
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "c1",
+   "from": "cron",
+   "to": "turn",
+   "label": "12 turns/hour"
+  },
+  {
+   "id": "t1",
+   "from": "turn",
+   "to": "agy",
+   "label": "prompt injected"
+  },
+  {
+   "id": "m1",
+   "from": "mail",
+   "to": "agy",
+   "label": "waits",
+   "variant": "dashed"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "rose",
+   "title": "The measured sink",
+   "items": [
+    "288 LLM turns/day on empty queue checks",
+    "~23M tokens/day; 576 empty turns bloating context",
+    "Mail latency: up to 5 min even while paying"
+   ]
+  }
+ ]
+}
