@@ -1,0 +1,233 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Two-seat coordination: BEFORE to AFTER (2026-09-18)",
+  "quality_profile": "showcase",
+  "viewBox": [
+   1210,
+   670
+  ]
+ },
+ "components": [
+  {
+   "id": "oa1",
+   "type": "external",
+   "label": "seat A posts",
+   "sublabel": "wait 2-5 min",
+   "pos": [
+    60,
+    150
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "ob1",
+   "type": "external",
+   "label": "seat B replies",
+   "sublabel": "wait 2-5 min",
+   "pos": [
+    60,
+    290
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "oa2",
+   "type": "external",
+   "label": "seat A responds",
+   "sublabel": "wait 2-5 min",
+   "pos": [
+    60,
+    430
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "ob2",
+   "type": "external",
+   "label": "seat B fixes",
+   "sublabel": "wait 2-5 min",
+   "pos": [
+    60,
+    570
+   ],
+   "size": [
+    180,
+    60
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "dag",
+   "type": "backend",
+   "label": "active_task_dag.json",
+   "sublabel": "Kahn-validated, frontier dispatch",
+   "pos": [
+    420,
+    90
+   ],
+   "size": [
+    220,
+    60
+   ],
+   "tag": "built T1"
+  },
+  {
+   "id": "t4",
+   "type": "backend",
+   "label": "T4 marlin-verify",
+   "sublabel": "claimed by marlin, DONE",
+   "pos": [
+    420,
+    260
+   ],
+   "size": [
+    190,
+    60
+   ]
+  },
+  {
+   "id": "t5",
+   "type": "backend",
+   "label": "T5 pilot-integration",
+   "sublabel": "unblocked by T4 completion",
+   "pos": [
+    640,
+    430
+   ],
+   "size": [
+    200,
+    60
+   ]
+  },
+  {
+   "id": "ledger",
+   "type": "backend",
+   "label": "wrapup_ledger.jsonl",
+   "sublabel": "bounded <=500 chars",
+   "pos": [
+    700,
+    260
+   ],
+   "size": [
+    190,
+    60
+   ]
+  },
+  {
+   "id": "thread",
+   "type": "backend",
+   "label": "fan-in mesh thread",
+   "sublabel": "parallel nodes, one merge",
+   "pos": [
+    700,
+    90
+   ],
+   "size": [
+    190,
+    60
+   ]
+  },
+  {
+   "id": "resume",
+   "type": "backend",
+   "label": "resume path",
+   "sublabel": "reads last 3-5 entries",
+   "pos": [
+    980,
+    260
+   ],
+   "size": [
+    180,
+    60
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "o1",
+   "from": "oa1",
+   "to": "ob1",
+   "variant": "dashed"
+  },
+  {
+   "id": "o2",
+   "from": "ob1",
+   "to": "oa2",
+   "variant": "dashed"
+  },
+  {
+   "id": "o3",
+   "from": "oa2",
+   "to": "ob2",
+   "variant": "dashed"
+  },
+  {
+   "id": "n2",
+   "from": "t4",
+   "to": "t5",
+   "label": "unblocks",
+   "variant": "emphasis"
+  },
+  {
+   "id": "n3",
+   "from": "t4",
+   "to": "ledger"
+  },
+  {
+   "id": "n4",
+   "from": "ledger",
+   "to": "resume",
+   "label": "floor drop"
+  },
+  {
+   "id": "n5",
+   "from": "thread",
+   "to": "t4",
+   "label": "numbered fan-in"
+  },
+  {
+   "id": "x1",
+   "from": "ob2",
+   "to": "dag",
+   "variant": "dashed"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "slate",
+   "title": "How to read this",
+   "items": [
+    "Grey boxes with dashed edges: the old serial ping-pong chain",
+    "Solid: the task DAG plus wrap-up ledger that replaced it"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "The pathology",
+   "items": [
+    "A path graph: wall time equalled chain depth; every hop re-read full session context; subtasks ran serially even when independent"
+   ]
+  },
+  {
+   "dot": "emerald",
+   "title": "First cycle executed 2026-09-18",
+   "items": [
+    "Antigravity built T1-T3, marlin verified T4, T4 completion unblocked T5: two seats, zero ping-pong; F1 (cross-seat re-claim) found and fix pending"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,265 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Gemma auditor card pipeline: BEFORE to AFTER (2026-09-17)",
+  "quality_profile": "showcase",
+  "viewBox": [
+   1270,
+   650
+  ]
+ },
+ "components": [
+  {
+   "id": "opile",
+   "type": "external",
+   "label": "out/*.jsonl unbounded",
+   "sublabel": "1,680 active cards to Jul 16",
+   "pos": [
+    60,
+    90
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "oappend",
+   "type": "external",
+   "label": "open(a) append",
+   "sublabel": "2,293 empty _meta lines",
+   "pos": [
+    60,
+    240
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "ounion",
+   "type": "external",
+   "label": "union-find clustering",
+   "sublabel": "0.90 bridge chains blobs",
+   "pos": [
+    60,
+    390
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "odummy",
+   "type": "external",
+   "label": "card_key() collapsed",
+   "sublabel": "4,304 cards, ONE dummy hash",
+   "pos": [
+    60,
+    540
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "lanes",
+   "type": "backend",
+   "label": "Lane O + R + T",
+   "sublabel": "triage cron every 6h",
+   "pos": [
+    330,
+    90
+   ],
+   "size": [
+    180,
+    60
+   ]
+  },
+  {
+   "id": "compact",
+   "type": "backend",
+   "label": "compaction + archival",
+   "sublabel": "protected signals kept",
+   "pos": [
+    590,
+    90
+   ],
+   "size": [
+    180,
+    60
+   ]
+  },
+  {
+   "id": "keys",
+   "type": "backend",
+   "label": "card_key() fixed",
+   "sublabel": "content_hash[:16] per card",
+   "pos": [
+    330,
+    470
+   ],
+   "size": [
+    180,
+    60
+   ]
+  },
+  {
+   "id": "cluster",
+   "type": "backend",
+   "label": "star clustering",
+   "sublabel": "seed, sim >= 0.90",
+   "pos": [
+    590,
+    300
+   ],
+   "size": [
+    170,
+    60
+   ]
+  },
+  {
+   "id": "ledger",
+   "type": "backend",
+   "label": "reject ledger hardened",
+   "sublabel": "30d tombstones, skew clamp",
+   "pos": [
+    850,
+    470
+   ],
+   "size": [
+    190,
+    60
+   ]
+  },
+  {
+   "id": "digest",
+   "type": "backend",
+   "label": "gemma_digest.py",
+   "sublabel": "186 projections",
+   "pos": [
+    1060,
+    200
+   ],
+   "size": [
+    160,
+    60
+   ]
+  },
+  {
+   "id": "drain",
+   "type": "backend",
+   "label": "drain sweep",
+   "sublabel": "quote-failed archived",
+   "pos": [
+    850,
+    90
+   ],
+   "size": [
+    170,
+    60
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "n0",
+   "from": "lanes",
+   "to": "compact",
+   "label": "retire-stale"
+  },
+  {
+   "id": "n1",
+   "from": "compact",
+   "to": "drain"
+  },
+  {
+   "id": "n3",
+   "from": "keys",
+   "to": "ledger",
+   "label": "dismissals match now"
+  },
+  {
+   "id": "n4",
+   "from": "cluster",
+   "to": "digest",
+   "label": "0.910 worst sim proven",
+   "variant": "emphasis"
+  },
+  {
+   "id": "n5",
+   "from": "ledger",
+   "to": "digest",
+   "label": "suppressed",
+   "variant": "emphasis"
+  },
+  {
+   "id": "n6",
+   "from": "drain",
+   "to": "digest",
+   "label": "1,397 verified"
+  },
+  {
+   "id": "o1",
+   "from": "opile",
+   "to": "oappend",
+   "variant": "dashed"
+  },
+  {
+   "id": "o2",
+   "from": "oappend",
+   "to": "ounion",
+   "variant": "dashed"
+  },
+  {
+   "id": "o3",
+   "from": "ounion",
+   "to": "odummy",
+   "variant": "dashed"
+  },
+  {
+   "id": "x2",
+   "from": "ounion",
+   "to": "cluster",
+   "variant": "dashed"
+  },
+  {
+   "id": "x3",
+   "from": "odummy",
+   "to": "keys",
+   "variant": "dashed"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "slate",
+   "title": "How to read this",
+   "items": [
+    "Grey boxes with dashed edges: the old shape, removed or replaced",
+    "Dashed cross edges: old part replaced by new part; solid: current"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "The defect that hid under everything",
+   "items": [
+    "Every relation candidate hashed to one dummy key: tombstones, dismissals, dedup all silently defeated (4,304 cards, one identity)"
+   ]
+  },
+  {
+   "dot": "emerald",
+   "title": "Measured result",
+   "items": [
+    "Fleet backlog 5,031 to 2,124; Lane O 1,680 to 189; relations 4,304 to 1,397 verified; 7 defects caught by adversarial loops that green suites missed"
+   ]
+  }
+ ]
+}

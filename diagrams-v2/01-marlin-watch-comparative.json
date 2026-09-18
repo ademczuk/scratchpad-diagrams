@@ -1,0 +1,229 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Marlin mesh watch: BEFORE to AFTER (2026-09-17)",
+  "quality_profile": "showcase",
+  "viewBox": [
+   1350,
+   610
+  ]
+ },
+ "components": [
+  {
+   "id": "oburst",
+   "type": "external",
+   "label": "burst cron 15-min",
+   "sublabel": "self-deleted on 8 quiet",
+   "pos": [
+    60,
+    80
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "oback",
+   "type": "external",
+   "label": "backstop cron 2h",
+   "sublabel": "12 fires/day, stranded mail",
+   "pos": [
+    60,
+    500
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "nburst",
+   "type": "backend",
+   "label": "burst cron 15-min",
+   "sublabel": "warm-reset keeps it alive",
+   "pos": [
+    700,
+    80
+   ],
+   "size": [
+    180,
+    66
+   ]
+  },
+  {
+   "id": "nback",
+   "type": "backend",
+   "label": "backstop cron hourly",
+   "sublabel": "daytime 06-24",
+   "pos": [
+    700,
+    500
+   ],
+   "size": [
+    180,
+    66
+   ]
+  },
+  {
+   "id": "rearm",
+   "type": "backend",
+   "label": "REARM-BURST",
+   "sublabel": "re-creates the burst",
+   "pos": [
+    470,
+    480
+   ],
+   "size": [
+    170,
+    60
+   ],
+   "tag": "self-heal"
+  },
+  {
+   "id": "mesh",
+   "type": "backend",
+   "label": "shared/mesh-chat",
+   "sublabel": "agentreef API",
+   "pos": [
+    60,
+    290
+   ],
+   "size": [
+    160,
+    60
+   ]
+  },
+  {
+   "id": "wswatch",
+   "type": "backend",
+   "label": "mesh_ws_watch",
+   "sublabel": "logon task",
+   "pos": [
+    290,
+    290
+   ],
+   "size": [
+    160,
+    60
+   ]
+  },
+  {
+   "id": "log",
+   "type": "backend",
+   "label": "mesh_watch_marlin.log",
+   "sublabel": "audit trail",
+   "pos": [
+    520,
+    290
+   ],
+   "size": [
+    170,
+    60
+   ]
+  },
+  {
+   "id": "watcher",
+   "type": "backend",
+   "label": "marlin_mesh_watch.py",
+   "sublabel": "fail-loud deliverer",
+   "pos": [
+    940,
+    430
+   ],
+   "size": [
+    190,
+    66
+   ]
+  },
+  {
+   "id": "kimi",
+   "type": "backend",
+   "label": "marlin kimi session",
+   "sublabel": "acts on mail",
+   "pos": [
+    1150,
+    290
+   ],
+   "size": [
+    150,
+    60
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "s1",
+   "from": "mesh",
+   "to": "wswatch",
+   "label": "WS rows"
+  },
+  {
+   "id": "s2",
+   "from": "wswatch",
+   "to": "log"
+  },
+  {
+   "id": "s3",
+   "from": "log",
+   "to": "watcher"
+  },
+  {
+   "id": "s4",
+   "from": "watcher",
+   "to": "kimi",
+   "label": "MESH lines",
+   "variant": "emphasis"
+  },
+  {
+   "id": "n1",
+   "from": "nburst",
+   "to": "watcher"
+  },
+  {
+   "id": "n2",
+   "from": "nback",
+   "to": "watcher"
+  },
+  {
+   "id": "n4",
+   "from": "rearm",
+   "to": "nback",
+   "variant": "emphasis"
+  },
+  {
+   "id": "x1",
+   "from": "oburst",
+   "to": "nburst",
+   "variant": "dashed"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "slate",
+   "title": "How to read this",
+   "items": [
+    "Grey boxes with dashed edges: the old shape, removed or replaced",
+    "Solid boxes and solid edges: what runs now",
+    "Dashed cross edges: old part replaced by new part"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "The failure that drove it",
+   "items": [
+    "QUIET-STREAK 8 = 2h no marlin mail, burst self-deleted; Antigravity dispatch landed 10 min later, stranded under a 2h backstop"
+   ]
+  },
+  {
+   "dot": "emerald",
+   "title": "Measured result",
+   "items": [
+    "57 to 27 fires per idle day; ~18.5M to ~7M tokens (62% cut); latency 15m warm, 60m cold"
+   ]
+  }
+ ]
+}

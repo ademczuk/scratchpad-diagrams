@@ -1,0 +1,219 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Antigravity wake chain: BEFORE to AFTER (2026-09-17)",
+  "quality_profile": "showcase",
+  "viewBox": [
+   1130,
+   570
+  ]
+ },
+ "components": [
+  {
+   "id": "ocron",
+   "type": "external",
+   "label": "schedule cron 5-min",
+   "sublabel": "288 LLM turns/day on empty checks",
+   "pos": [
+    60,
+    100
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "oturn",
+   "type": "external",
+   "label": "full LLM turn per fire",
+   "sublabel": "~23M tokens/day, 576 empty turns",
+   "pos": [
+    60,
+    260
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "mail",
+   "type": "backend",
+   "label": "direct mail queue",
+   "sublabel": "pending-direct.jsonl",
+   "pos": [
+    60,
+    470
+   ],
+   "size": [
+    180,
+    60
+   ]
+  },
+  {
+   "id": "notify",
+   "type": "backend",
+   "label": "mail_notify daemon",
+   "sublabel": "PM2, watches the log",
+   "pos": [
+    330,
+    470
+   ],
+   "size": [
+    180,
+    60
+   ]
+  },
+  {
+   "id": "monitor",
+   "type": "backend",
+   "label": "session_monitor.py",
+   "sublabel": "reactive wake <1s",
+   "pos": [
+    610,
+    380
+   ],
+   "size": [
+    180,
+    60
+   ],
+   "tag": "unified"
+  },
+  {
+   "id": "agy",
+   "type": "backend",
+   "label": "agy session",
+   "sublabel": "woken only on mail",
+   "pos": [
+    900,
+    380
+   ],
+   "size": [
+    170,
+    60
+   ]
+  },
+  {
+   "id": "deadman",
+   "type": "backend",
+   "label": "deadman cron 30-min",
+   "sublabel": "runs a script, not the model",
+   "pos": [
+    330,
+    90
+   ],
+   "size": [
+    200,
+    60
+   ]
+  },
+  {
+   "id": "check",
+   "type": "backend",
+   "label": "--check deterministic",
+   "sublabel": "IDLE in <50ms, near-zero tokens",
+   "pos": [
+    610,
+    90
+   ],
+   "size": [
+    200,
+    60
+   ]
+  },
+  {
+   "id": "alert",
+   "type": "backend",
+   "label": "alert on not-IDLE",
+   "sublabel": "surfaces to operator",
+   "pos": [
+    900,
+    90
+   ],
+   "size": [
+    180,
+    60
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "n1",
+   "from": "mail",
+   "to": "notify",
+   "label": "file event"
+  },
+  {
+   "id": "n2",
+   "from": "notify",
+   "to": "monitor",
+   "label": "poke"
+  },
+  {
+   "id": "n3",
+   "from": "monitor",
+   "to": "agy",
+   "label": "wake <1s",
+   "variant": "emphasis"
+  },
+  {
+   "id": "d1",
+   "from": "deadman",
+   "to": "check",
+   "label": "script run"
+  },
+  {
+   "id": "d2",
+   "from": "check",
+   "to": "alert",
+   "label": "only if unhealthy"
+  },
+  {
+   "id": "o1",
+   "from": "ocron",
+   "to": "oturn",
+   "variant": "dashed"
+  },
+  {
+   "id": "o2",
+   "from": "oturn",
+   "to": "agy",
+   "label": "forced prompt each fire",
+   "variant": "dashed"
+  },
+  {
+   "id": "x1",
+   "from": "oturn",
+   "to": "monitor",
+   "variant": "dashed"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "slate",
+   "title": "How to read this",
+   "items": [
+    "Grey boxes with dashed edges: the old shape, removed or replaced",
+    "Solid: what runs now; emphasis: the load-bearing edge"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "The sink that drove it",
+   "items": [
+    "A 5-minute schedule cron forced a full LLM turn every fire, empty queue or not"
+   ]
+  },
+  {
+   "dot": "emerald",
+   "title": "Measured result",
+   "items": [
+    "~23M tokens/day to near-zero when idle; mail wake under 1 second; one background task instead of two"
+   ]
+  }
+ ]
+}
