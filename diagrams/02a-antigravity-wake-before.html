@@ -4975,7 +4975,215 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   </style>
 </head>
 <body>
-  <!-- Toolbar: theme, live visual style, trace motion, presentation stage, and export.
+
+<style id="fleet-breadcrumb-style">
+.fleet-breadcrumb-bar {
+  position: fixed;
+  top: 12px;
+  left: 14px;
+  z-index: 99999;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1;
+}
+.fleet-breadcrumb-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px;
+  background: rgba(13, 17, 23, 0.92);
+  border: 1px solid rgba(240, 246, 252, 0.16);
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e6edf3;
+}
+html[data-theme="light"] .fleet-breadcrumb-inner {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(31, 35, 40, 0.18);
+  color: #1f2328;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+}
+.crumb-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #58a6ff;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 5px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.crumb-home:hover {
+  background: rgba(88, 166, 255, 0.15);
+  color: #79c0ff;
+}
+.crumb-sep {
+  color: #6e7681;
+  font-weight: 400;
+  user-select: none;
+}
+.crumb-select-wrap {
+  position: relative;
+}
+.crumb-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(110, 118, 129, 0.12);
+  color: inherit;
+  border: 1px solid rgba(240, 246, 252, 0.12);
+  border-radius: 6px;
+  padding: 4px 22px 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+}
+.crumb-select option {
+  background: #161b22;
+  color: #e6edf3;
+}
+html[data-theme="light"] .crumb-select option {
+  background: #ffffff;
+  color: #1f2328;
+}
+.crumb-views {
+  display: inline-flex;
+  background: rgba(110, 118, 129, 0.12);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+.crumb-view-tab {
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #8b949e;
+  font-weight: 500;
+  font-size: 11px;
+  transition: all 0.15s ease;
+}
+.crumb-view-tab:hover {
+  color: #e6edf3;
+  background: rgba(255, 255, 255, 0.06);
+}
+html[data-theme="light"] .crumb-view-tab:hover {
+  color: #1f2328;
+  background: rgba(0, 0, 0, 0.05);
+}
+.crumb-view-tab.active {
+  background: #238636;
+  color: #ffffff;
+  font-weight: 600;
+}
+.crumb-view-tab.before.active {
+  background: #da3633;
+  color: #ffffff;
+}
+.crumb-view-tab.comparative.active {
+  background: #1f6feb;
+  color: #ffffff;
+}
+.crumb-pager {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 2px;
+}
+.crumb-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 7px;
+  background: rgba(110, 118, 129, 0.12);
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  border-radius: 5px;
+  color: #8b949e;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.crumb-nav-btn:hover {
+  color: #e6edf3;
+  border-color: rgba(240, 246, 252, 0.25);
+  background: rgba(110, 118, 129, 0.22);
+}
+html[data-theme="light"] .crumb-nav-btn:hover {
+  color: #1f2328;
+  border-color: rgba(31, 35, 40, 0.3);
+}
+@media (max-width: 768px) {
+  .crumb-home span { display: none; }
+  .crumb-select { max-width: 130px; font-size: 11px; }
+  .crumb-pager { display: none; }
+}
+</style>
+
+<!-- Fleet Breadcrumb Navigation -->
+<nav class="fleet-breadcrumb-bar" id="fleet-breadcrumb" aria-label="Breadcrumb navigation">
+  <div class="fleet-breadcrumb-inner">
+    <a href="../index.html" class="crumb-home" title="Back to Overview (Key: H or Esc)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Overview</span>
+    </a>
+    <span class="crumb-sep">/</span>
+    <div class="crumb-select-wrap">
+      <select id="topic-select" class="crumb-select" aria-label="Select optimization topic" onchange="location.href=this.value;">
+        <option value="01a-marlin-watch-before.html">1. Marlin mesh watch</option>
+        <option value="02a-antigravity-wake-before.html" selected="selected">2. Antigravity wake chain</option>
+        <option value="03a-auditor-before.html">3. Gemma auditor card pipeline</option>
+        <option value="04a-coordination-before.html">4. Two-seat coordination</option>
+        <option value="05a-lane-hardening-before.html">5. Auditor lane execution & hardening</option>
+      </select>
+    </div>
+    <span class="crumb-sep">/</span>
+    <div class="crumb-views">
+      <a href="02-antigravity-wake-comparative.html" class="crumb-view-tab comparative" title="Comparative Unified View (Key: C)">Comparative</a>
+      <a href="02a-antigravity-wake-before.html" class="crumb-view-tab before active" title="Before View (Key: B)">Before</a>
+      <a href="02b-antigravity-wake-after.html" class="crumb-view-tab after" title="After View (Key: A)">After</a>
+    </div>
+    <div class="crumb-pager">
+      <a href="01a-marlin-watch-before.html" class="crumb-nav-btn prev" title="Previous Topic: 1. Marlin mesh watch (Key: [)">‹ Prev</a>
+      <a href="03a-auditor-before.html" class="crumb-nav-btn next" title="Next Topic: 3. Gemma auditor card pipeline (Key: ])">Next ›</a>
+    </div>
+  </div>
+</nav>
+
+<script id="fleet-breadcrumb-script">
+(function() {
+  window.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var key = e.key.toLowerCase();
+    if (key === 'h' || (key === 'escape' && !document.querySelector('.dialog-open'))) {
+      window.location.href = '../index.html';
+    } else if (key === '[') {
+      var prev = document.querySelector('.crumb-nav-btn.prev');
+      if (prev) prev.click();
+    } else if (key === ']') {
+      var next = document.querySelector('.crumb-nav-btn.next');
+      if (next) next.click();
+    } else if (key === 'c') {
+      var comp = document.querySelector('.crumb-view-tab.comparative');
+      if (comp) comp.click();
+    } else if (key === 'b') {
+      var bef = document.querySelector('.crumb-view-tab.before');
+      if (bef) bef.click();
+    } else if (key === 'a') {
+      var aft = document.querySelector('.crumb-view-tab.after');
+      if (aft) aft.click();
+    }
+  });
+})();
+</script>
+
+
+
+<!-- Toolbar: theme, live visual style, trace motion, presentation stage, and export.
        Motion appears only for trace-enabled artifacts and has no shortcut;
        Keyboard: T toggles theme, S cycles style, F toggles the stage, E opens export. -->
   <div class="toolbar" role="toolbar" aria-label="Diagram actions">

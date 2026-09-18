@@ -132,7 +132,7 @@ specs["04-coordination-comparative"] = spec(
   old("ob2", "seat B fixes", "wait 2-5 min", 60, 570, 180, 60, "removed"),
   new("dag", "active_task_dag.json", "Kahn-validated, frontier dispatch", 420, 90, 220, 60, "built T1"),
   new("t4", "T4 marlin-verify", "claimed by marlin, DONE", 420, 260, 190, 60),
-  new("t5", "T5 pilot-integration", "unblocked by T4 completion", 640, 430, 200, 60),
+  new("t5", "T5 pilot-integration", "claimed & completed, DONE", 640, 430, 200, 60),
   new("ledger", "wrapup_ledger.jsonl", "bounded <=500 chars", 700, 260, 190, 60),
   new("thread", "fan-in mesh thread", "parallel nodes, one merge", 700, 90, 190, 60),
   new("resume", "resume path", "reads last 3-5 entries", 980, 260, 180, 60)],
@@ -145,7 +145,35 @@ specs["04-coordination-comparative"] = spec(
  [card("slate", "How to read this", ["Grey boxes with dashed edges: the old serial ping-pong chain",
     "Solid: the task DAG plus wrap-up ledger that replaced it"]),
   card("rose", "The pathology", ["A path graph: wall time equalled chain depth; every hop re-read full session context; subtasks ran serially even when independent"]),
-  card("emerald", "First cycle executed 2026-09-18", ["Antigravity built T1-T3, marlin verified T4, T4 completion unblocked T5: two seats, zero ping-pong; F1 (cross-seat re-claim) found and fix pending"])])
+  card("emerald", "First cycle executed 2026-09-18", ["Antigravity built T1-T3, marlin verified T4, T4 unblocked T5, Antigravity completed T5: zero ping-pong; F1 resolved with TaskAlreadyClaimedError + --force"])])
+
+# ---------------- 5. lane hardening: comparative ----------------
+specs["05-lane-hardening-comparative"] = spec(
+ "Auditor lane execution: BEFORE to AFTER (2026-09-18)",
+ [old("obare", "bare subprocesses", "no watchdog, 84% GPU 70m", 60, 120),
+  old("olock", "flawed instance_lock", "check-then-act TOCTOU", 60, 270),
+  old("oio", "raw JSONL write", "JSONDecodeError partial", 60, 420),
+  old("otests", "failing test suites", "pytest plugin crashes", 60, 570),
+  new("loop", "gemma_node_loop.py", "parent supervision + traps", 400, 120, 210, 60),
+  new("lock", "atomic instance_lock", "stale PID reclaim, verify", 400, 270, 210, 60),
+  new("safeio", "safe JSON I/O", "trailing newline guards", 400, 420, 210, 60),
+  new("proc", "supervised children", "leak-resilient, 0 VRAM waste", 700, 120, 210, 60),
+  new("triage", "curation_triage.py", "active compaction & drain", 700, 270, 210, 60),
+  new("suite", "hardened test suite", "22/22 unit tests green", 700, 420, 210, 60)],
+ [conn("o1", "obare", "olock", "", "dashed"),
+  conn("o2", "olock", "oio", "", "dashed"),
+  conn("o3", "oio", "otests", "", "dashed"),
+  conn("x1", "obare", "loop", "", "dashed"),
+  conn("n1", "loop", "proc", "supervises"),
+  conn("n2", "loop", "lock"),
+  conn("n3", "lock", "triage", "syncs"),
+  conn("n4", "lock", "safeio"),
+  conn("n5", "safeio", "suite", "tests safe I/O"),
+  conn("n6", "proc", "triage"),
+  conn("n7", "triage", "suite", "", "emphasis")],
+ [card("slate", "How to read this", ["Grey boxes: bare subprocesses, TOCTOU lock races, and crashing test runner", "Solid: supervised subprocesses, atomic locks, safe file I/O, and 22/22 green tests"]),
+  card("rose", "The failure modes", ["Orphaned child burned 84% GPU for 70 min; partial JSON writes crashed loop; test suites failed with unhandled exceptions"]),
+  card("emerald", "Hardened resilience", ["8 vulnerabilities audited & resolved; atomic locks + parent PID supervision; 22/22 unit tests green in 2.78s"])])
 
 os.makedirs(OUT, exist_ok=True)
 for name, s in specs.items():

@@ -5,87 +5,254 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>scratchpad-diagrams - fleet optimisation, before to after</title>
 <style>
-  :root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --dim:#8b949e; --accent:#58a6ff; }
+  :root { --bg:#0d1117; --panel:#161b22; --border:#30363d; --fg:#e6edf3; --dim:#8b949e; --accent:#58a6ff; --good:#3fb950; --bad:#f85149; }
   * { box-sizing: border-box; }
-  body { margin:0; font-family: "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--fg); }
-  header { padding:32px 24px 16px; border-bottom:1px solid var(--border); }
-  h1 { margin:0 0 6px; font-size:22px; }
-  .sub { color:var(--dim); font-size:13px; max-width:1100px; }
+  html { scroll-behavior: smooth; }
+  body { margin:0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--fg); }
+
+  /* Sticky Breadcrumb Bar */
+  .breadcrumb-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 24px;
+    background: rgba(13, 17, 23, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .breadcrumb-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .breadcrumb-left .root-title {
+    font-weight: 700;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .breadcrumb-left .sep { color: var(--dim); }
+  .breadcrumb-left .current { color: var(--accent); font-weight: 500; }
+
+  .jump-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .jump-chip {
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(110, 118, 129, 0.12);
+    border: 1px solid rgba(240, 246, 252, 0.1);
+    color: var(--dim);
+    text-decoration: none;
+    font-size: 11.5px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .jump-chip:hover {
+    color: var(--fg);
+    background: rgba(88, 166, 255, 0.15);
+    border-color: rgba(88, 166, 255, 0.4);
+  }
+
+  header { padding:32px 24px 20px; border-bottom:1px solid var(--border); max-width:1100px; margin:0 auto; }
+  h1 { margin:0 0 8px; font-size:24px; }
+  .sub { color:var(--dim); font-size:13.5px; line-height:1.6; }
   main { max-width:1100px; margin:0 auto; padding:24px; }
-  .pair { background:var(--panel); border:1px solid var(--border); border-radius:10px; margin-bottom:20px; overflow:hidden; }
-  .pair h2 { margin:0; padding:14px 18px; font-size:16px; border-bottom:1px solid var(--border); }
-  .pair h2 .tag { font-size:11px; font-weight:normal; color:var(--dim); margin-left:8px; }
+
+  .pair { background:var(--panel); border:1px solid var(--border); border-radius:10px; margin-bottom:24px; overflow:hidden; transition:border-color 0.2s ease; }
+  .pair:hover { border-color: rgba(88, 166, 255, 0.4); }
+  .pair-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:8px; }
+  .pair h2 { margin:0; font-size:16px; display:inline; }
+  .pair .tag { font-size:12px; font-weight:normal; color:var(--dim); margin-left:8px; }
+
+  /* Breadcrumb action pill bar inside each card */
+  .card-breadcrumbs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(110, 118, 129, 0.12);
+    padding: 3px 4px;
+    border-radius: 6px;
+  }
+  .crumb-pill {
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+  }
+  .crumb-pill.comp { color: var(--accent); }
+  .crumb-pill.comp:hover { background: rgba(88, 166, 255, 0.18); color: #79c0ff; }
+  .crumb-pill.bef { color: var(--bad); }
+  .crumb-pill.bef:hover { background: rgba(248, 81, 73, 0.18); color: #ff7b72; }
+  .crumb-pill.aft { color: var(--good); }
+  .crumb-pill.aft:hover { background: rgba(63, 185, 80, 0.18); color: #56d364; }
+
   a.open { display:block; padding:20px 18px; text-decoration:none; color:var(--fg); }
   a.open:hover { background:#1c2330; }
-  a.open .lbl { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+  a.open .lbl { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; font-weight:600; }
   a.open .t { font-size:15px; font-weight:600; margin-bottom:6px; }
   a.open .d { font-size:13px; color:var(--dim); line-height:1.55; }
-  .legend { display:flex; gap:18px; flex-wrap:wrap; padding:12px 18px; border-top:1px solid var(--border); font-size:12px; color:var(--dim); }
+
+  .legend { display:flex; gap:18px; flex-wrap:wrap; padding:16px 20px; border-top:1px solid var(--border); font-size:12px; color:var(--dim); background: rgba(22, 27, 34, 0.5); border-radius: 8px; margin-top: 10px; }
   .legend span { display:inline-flex; align-items:center; gap:6px; }
   .sw { display:inline-block; width:14px; height:10px; border-radius:2px; }
   .sw.old { background:#6e7681; opacity:.45; }
   .sw.new { background:#3fb950; }
   .ln { display:inline-block; width:22px; border-top:2px dashed #6e7681; }
   .ln2 { display:inline-block; width:22px; border-top:2px solid #3fb950; }
-  footer { padding:18px 24px 32px; color:var(--dim); font-size:12px; border-top:1px solid var(--border); }
+  footer { padding:24px 24px 36px; color:var(--dim); font-size:12px; border-top:1px solid var(--border); max-width:1100px; margin:0 auto; }
+  footer a { color: var(--accent); }
 </style>
 </head>
 <body>
+
+<nav class="breadcrumb-nav" aria-label="Global breadcrumb navigation">
+  <div class="breadcrumb-left">
+    <span class="root-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      scratchpad-diagrams
+    </span>
+    <span class="sep">/</span>
+    <span class="current">Overview</span>
+  </div>
+  <div class="jump-chips">
+    <a class="jump-chip" href="#topic-1">1. Marlin Watch</a>
+    <a class="jump-chip" href="#topic-2">2. Antigravity Wake</a>
+    <a class="jump-chip" href="#topic-3">3. Auditor Pipeline</a>
+    <a class="jump-chip" href="#topic-4">4. Task DAG</a>
+    <a class="jump-chip" href="#topic-5">5. Lane Hardening</a>
+  </div>
+</nav>
+
 <header>
-  <h1>scratchpad-diagrams</h1>
-  <div class="sub">Fleet optimisation shown as comparative graphs: each diagram holds the old shape and the new shape on one canvas.
-  Grey boxes with dashed edges are what was removed or replaced; solid boxes and edges are what runs now.
-  Generated with <a style="color:var(--accent)" href="https://github.com/tt-a1i/archify">archify</a> from typed JSON IR (specs in the repo, re-renderable and diffable).
-  Marlin seat, 2026-09-17/18. Every number was measured, not estimated.</div>
+  <h1>Fleet Optimisation Diagrams</h1>
+  <div class="sub">Fleet architecture evolution shown as comparative and split before/after graphs.
+  Grey boxes with dashed edges represent legacy components removed or refactored; solid boxes and edges represent active runtime infrastructure.
+  Generated with <a style="color:var(--accent)" href="https://github.com/tt-a1i/archify">archify</a> from typed JSON IR.
+  Jointly maintained by the <strong>marlin seat</strong> (Kimi Code CLI) and <strong>antigravity seat</strong> (Antigravity CLI). Every number is empirically measured from live logs and on-disk ledgers.</div>
 </header>
+
 <main>
 
-  <div class="pair">
-    <h2>1. Marlin mesh watch chain <span class="tag">18.5M to 7M tokens per idle day; the stranded-dispatch miss eliminated</span></h2>
+  <div class="pair" id="topic-1">
+    <div class="pair-header">
+      <div>
+        <h2>1. Marlin mesh watch chain</h2>
+        <span class="tag">18.5M to 7M tokens per idle day; stranded-dispatch eliminated</span>
+      </div>
+      <div class="card-breadcrumbs" aria-label="Navigation views for topic 1">
+        <a class="crumb-pill comp" href="diagrams/01-marlin-watch-comparative.html" title="Open Comparative Diagram">⚡ Comparative</a>
+        <a class="crumb-pill bef" href="diagrams/01a-marlin-watch-before.html" title="Open Before Diagram">🔴 Before</a>
+        <a class="crumb-pill aft" href="diagrams/01b-marlin-watch-after.html" title="Open After Diagram">🟢 After</a>
+      </div>
+    </div>
     <a class="open" href="diagrams/01-marlin-watch-comparative.html">
-      <div class="lbl">Open the comparative diagram</div>
+      <div class="lbl">Open comparative diagram</div>
       <div class="t">Cold-streak burst that deleted itself, 2h backstop &rarr; warm-reset burst, hourly daytime backstop, REARM self-heal</div>
       <div class="d">The old burst cron self-deleted after 8 quiet checks that ignored warm mesh; Antigravity's dispatch landed 10 minutes later and sat under a two-hour backstop. The new chain holds the burst with any fleet traffic under 45 minutes, runs the backstop hourly in daytime only, and the backstop prompt carries the burst prompt verbatim so the pair rebuilds itself after any compaction.</div>
     </a>
   </div>
 
-  <div class="pair">
-    <h2>2. Antigravity wake chain <span class="tag">288 LLM turns/day to ~0 when idle; mail wake under 1 second</span></h2>
+  <div class="pair" id="topic-2">
+    <div class="pair-header">
+      <div>
+        <h2>2. Antigravity wake chain</h2>
+        <span class="tag">288 LLM turns/day to ~0 when idle; mail wake under 1 second</span>
+      </div>
+      <div class="card-breadcrumbs" aria-label="Navigation views for topic 2">
+        <a class="crumb-pill comp" href="diagrams/02-antigravity-wake-comparative.html" title="Open Comparative Diagram">⚡ Comparative</a>
+        <a class="crumb-pill bef" href="diagrams/02a-antigravity-wake-before.html" title="Open Before Diagram">🔴 Before</a>
+        <a class="crumb-pill aft" href="diagrams/02b-antigravity-wake-after.html" title="Open After Diagram">🟢 After</a>
+      </div>
+    </div>
     <a class="open" href="diagrams/02-antigravity-wake-comparative.html">
-      <div class="lbl">Open the comparative diagram</div>
+      <div class="lbl">Open comparative diagram</div>
       <div class="t">5-minute cron sink forcing a full LLM turn per fire &rarr; reactive monitor plus a deterministic 30-minute deadman</div>
       <div class="d">The old schedule cron burned ~23M tokens a day on empty queue checks. The new chain wakes the model only when mail lands (under a second, via the file-watcher and session monitor) and the deadman runs a --check script that prints IDLE in under 50 ms without touching the model at all.</div>
     </a>
   </div>
 
-  <div class="pair">
-    <h2>3. Gemma auditor card pipeline <span class="tag">fleet backlog 5,031 to 2,124 cards; the one-key collision found and fixed</span></h2>
+  <div class="pair" id="topic-3">
+    <div class="pair-header">
+      <div>
+        <h2>3. Gemma auditor card pipeline</h2>
+        <span class="tag">fleet backlog 5,031 to 2,124 cards; the one-key collision found and fixed</span>
+      </div>
+      <div class="card-breadcrumbs" aria-label="Navigation views for topic 3">
+        <a class="crumb-pill comp" href="diagrams/03-auditor-comparative.html" title="Open Comparative Diagram">⚡ Comparative</a>
+        <a class="crumb-pill bef" href="diagrams/03a-auditor-before.html" title="Open Before Diagram">🔴 Before</a>
+        <a class="crumb-pill aft" href="diagrams/03b-auditor-after.html" title="Open After Diagram">🟢 After</a>
+      </div>
+    </div>
     <a class="open" href="diagrams/03-auditor-comparative.html">
-      <div class="lbl">Open the comparative diagram</div>
+      <div class="lbl">Open comparative diagram</div>
       <div class="t">Unbounded piles, union-find chain-merge, 4,304 cards under one dummy hash &rarr; compaction, real keys, star clustering, hardened ledger</div>
       <div class="d">Every relation candidate hashed to a single dummy key, silently defeating tombstones, dismissals, and dedup. The new pipeline compacts on a cron, derives real card keys, clusters by seed exemplar with a proven 0.90 floor, and hardens the reject ledger off git with a clock-skew clamp.</div>
     </a>
   </div>
 
-  <div class="pair">
-    <h2>4. Two-seat coordination <span class="tag">serial ping-pong to task DAG plus wrap-up ledger; first cycle executed 2026-09-18</span></h2>
+  <div class="pair" id="topic-4">
+    <div class="pair-header">
+      <div>
+        <h2>4. Two-seat coordination</h2>
+        <span class="tag">serial ping-pong to task DAG plus wrap-up ledger; first cycle executed 2026-09-18</span>
+      </div>
+      <div class="card-breadcrumbs" aria-label="Navigation views for topic 4">
+        <a class="crumb-pill comp" href="diagrams/04-coordination-comparative.html" title="Open Comparative Diagram">⚡ Comparative</a>
+        <a class="crumb-pill bef" href="diagrams/04a-coordination-before.html" title="Open Before Diagram">🔴 Before</a>
+        <a class="crumb-pill aft" href="diagrams/04b-coordination-after.html" title="Open After Diagram">🟢 After</a>
+      </div>
+    </div>
     <a class="open" href="diagrams/04-coordination-comparative.html">
-      <div class="lbl">Open the comparative diagram</div>
+      <div class="lbl">Open comparative diagram</div>
       <div class="t">Serial claim-response-fix-verify chain, 2-5 minute waits per hop &rarr; Kahn-validated task DAG with frontier dispatch and bounded wrap-up ledger</div>
       <div class="d">Wall time used to equal chain depth and every hop re-read full session context. The new shape ran its first real cycle the day it was built: Antigravity's nodes unblocked marlin's verification node, whose completion unblocked their integration node, with zero ping-pong in between.</div>
     </a>
   </div>
 
+  <div class="pair" id="topic-5">
+    <div class="pair-header">
+      <div>
+        <h2>5. Auditor lane execution & hardening</h2>
+        <span class="tag">8 vulnerabilities resolved, GPU leak eliminated, 22/22 unit tests green</span>
+      </div>
+      <div class="card-breadcrumbs" aria-label="Navigation views for topic 5">
+        <a class="crumb-pill comp" href="diagrams/05-lane-hardening-comparative.html" title="Open Comparative Diagram">⚡ Comparative</a>
+        <a class="crumb-pill bef" href="diagrams/05a-lane-hardening-before.html" title="Open Before Diagram">🔴 Before</a>
+        <a class="crumb-pill aft" href="diagrams/05b-lane-hardening-after.html" title="Open After Diagram">🟢 After</a>
+      </div>
+    </div>
+    <a class="open" href="diagrams/05-lane-hardening-comparative.html">
+      <div class="lbl">Open comparative diagram</div>
+      <div class="t">Bare subprocesses, TOCTOU locks, partial JSON crashes &rarr; supervised execution, atomic locks, safe I/O, hardened suites</div>
+      <div class="d">An orphaned lane child burned 84% GPU for 70 minutes with zero watchdog supervision; check-then-act lock races allowed double-spawns; unhandled test runner crashes. The new loop implements parent PID supervision, atomic lock reclamation, trailing newline guards, and restores all 22 unit tests to 100% green.</div>
+    </a>
+  </div>
+
   <div class="legend">
-    <span><span class="sw old"></span> grey box = old shape, removed or replaced</span>
-    <span><span class="ln"></span> dashed edge = old flow or replaced-by link</span>
-    <span><span class="sw new"></span> solid box = what runs now</span>
-    <span><span class="ln2"></span> solid edge = current flow; green = load-bearing</span>
+    <span><span class="sw old"></span> grey box = legacy shape, removed or replaced</span>
+    <span><span class="ln"></span> dashed edge = legacy flow or replaced-by transition</span>
+    <span><span class="sw new"></span> solid box = active production component</span>
+    <span><span class="ln2"></span> solid edge = current active flow; green = load-bearing</span>
   </div>
 
 </main>
+
 <footer>
-  Generated by the marlin seat (Kimi Code CLI) with archify v2.17. Evidence: 2026-09-17 token audit (wire-log measured), on-disk card counts, fleet-task-dag execution record on shared/mesh-chat. Older split before/after versions remain in the repo history.
+  Generated jointly by the <strong>marlin seat</strong> (Kimi Code CLI) and <strong>antigravity seat</strong> (Antigravity CLI) with <a href="https://github.com/tt-a1i/archify">archify</a> v2.17. Evidence: 2026-09-17 token audit, on-disk card counts, fleet-task-dag execution record on <code>shared/mesh-chat</code>.
 </footer>
+
 </body>
 </html>

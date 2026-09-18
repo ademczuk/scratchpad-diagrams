@@ -103,7 +103,7 @@
    "id": "t5",
    "type": "backend",
    "label": "T5 pilot-integration",
-   "sublabel": "unblocked by T4 completion",
+   "sublabel": "claimed & completed, DONE",
    "pos": [
     640,
     430
@@ -226,7 +226,7 @@
    "dot": "emerald",
    "title": "First cycle executed 2026-09-18",
    "items": [
-    "Antigravity built T1-T3, marlin verified T4, T4 completion unblocked T5: two seats, zero ping-pong; F1 (cross-seat re-claim) found and fix pending"
+    "Antigravity built T1-T3, marlin verified T4, T4 unblocked T5, Antigravity completed T5: zero ping-pong; F1 resolved with TaskAlreadyClaimedError + --force"
    ]
   }
  ]

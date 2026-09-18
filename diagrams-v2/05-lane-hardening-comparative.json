@@ -1,0 +1,247 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Auditor lane execution: BEFORE to AFTER (2026-09-18)",
+  "quality_profile": "showcase",
+  "viewBox": [
+   960,
+   680
+  ]
+ },
+ "components": [
+  {
+   "id": "obare",
+   "type": "external",
+   "label": "bare subprocesses",
+   "sublabel": "no watchdog, 84% GPU 70m",
+   "pos": [
+    60,
+    120
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "olock",
+   "type": "external",
+   "label": "flawed instance_lock",
+   "sublabel": "check-then-act TOCTOU",
+   "pos": [
+    60,
+    270
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "oio",
+   "type": "external",
+   "label": "raw JSONL write",
+   "sublabel": "JSONDecodeError partial",
+   "pos": [
+    60,
+    420
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "otests",
+   "type": "external",
+   "label": "failing test suites",
+   "sublabel": "pytest plugin crashes",
+   "pos": [
+    60,
+    570
+   ],
+   "size": [
+    180,
+    66
+   ],
+   "tag": "removed"
+  },
+  {
+   "id": "loop",
+   "type": "backend",
+   "label": "gemma_node_loop.py",
+   "sublabel": "parent supervision + traps",
+   "pos": [
+    400,
+    120
+   ],
+   "size": [
+    210,
+    60
+   ]
+  },
+  {
+   "id": "lock",
+   "type": "backend",
+   "label": "atomic instance_lock",
+   "sublabel": "stale PID reclaim, verify",
+   "pos": [
+    400,
+    270
+   ],
+   "size": [
+    210,
+    60
+   ]
+  },
+  {
+   "id": "safeio",
+   "type": "backend",
+   "label": "safe JSON I/O",
+   "sublabel": "trailing newline guards",
+   "pos": [
+    400,
+    420
+   ],
+   "size": [
+    210,
+    60
+   ]
+  },
+  {
+   "id": "proc",
+   "type": "backend",
+   "label": "supervised children",
+   "sublabel": "leak-resilient, 0 VRAM waste",
+   "pos": [
+    700,
+    120
+   ],
+   "size": [
+    210,
+    60
+   ]
+  },
+  {
+   "id": "triage",
+   "type": "backend",
+   "label": "curation_triage.py",
+   "sublabel": "active compaction & drain",
+   "pos": [
+    700,
+    270
+   ],
+   "size": [
+    210,
+    60
+   ]
+  },
+  {
+   "id": "suite",
+   "type": "backend",
+   "label": "hardened test suite",
+   "sublabel": "22/22 unit tests green",
+   "pos": [
+    700,
+    420
+   ],
+   "size": [
+    210,
+    60
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "o1",
+   "from": "obare",
+   "to": "olock",
+   "variant": "dashed"
+  },
+  {
+   "id": "o2",
+   "from": "olock",
+   "to": "oio",
+   "variant": "dashed"
+  },
+  {
+   "id": "o3",
+   "from": "oio",
+   "to": "otests",
+   "variant": "dashed"
+  },
+  {
+   "id": "x1",
+   "from": "obare",
+   "to": "loop",
+   "variant": "dashed"
+  },
+  {
+   "id": "n1",
+   "from": "loop",
+   "to": "proc",
+   "label": "supervises"
+  },
+  {
+   "id": "n2",
+   "from": "loop",
+   "to": "lock"
+  },
+  {
+   "id": "n3",
+   "from": "lock",
+   "to": "triage",
+   "label": "syncs"
+  },
+  {
+   "id": "n4",
+   "from": "lock",
+   "to": "safeio"
+  },
+  {
+   "id": "n5",
+   "from": "safeio",
+   "to": "suite",
+   "label": "tests safe I/O"
+  },
+  {
+   "id": "n6",
+   "from": "proc",
+   "to": "triage"
+  },
+  {
+   "id": "n7",
+   "from": "triage",
+   "to": "suite",
+   "variant": "emphasis"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "slate",
+   "title": "How to read this",
+   "items": [
+    "Grey boxes: bare subprocesses, TOCTOU lock races, and crashing test runner",
+    "Solid: supervised subprocesses, atomic locks, safe file I/O, and 22/22 green tests"
+   ]
+  },
+  {
+   "dot": "rose",
+   "title": "The failure modes",
+   "items": [
+    "Orphaned child burned 84% GPU for 70 min; partial JSON writes crashed loop; test suites failed with unhandled exceptions"
+   ]
+  },
+  {
+   "dot": "emerald",
+   "title": "Hardened resilience",
+   "items": [
+    "8 vulnerabilities audited & resolved; atomic locks + parent PID supervision; 22/22 unit tests green in 2.78s"
+   ]
+  }
+ ]
+}
