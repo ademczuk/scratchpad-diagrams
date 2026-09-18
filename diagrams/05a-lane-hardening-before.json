@@ -1,0 +1,174 @@
+{
+ "schema_version": 1,
+ "diagram_type": "architecture",
+ "meta": {
+  "title": "Auditor lane execution - BEFORE (8 vulnerabilities & crash fragility)",
+  "quality_profile": "showcase"
+ },
+ "components": [
+  {
+   "id": "loop",
+   "type": "backend",
+   "label": "gemma_node_loop.py",
+   "sublabel": "bare subprocesses",
+   "pos": [
+    40,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "gpu",
+   "type": "backend",
+   "label": "RTX 5090 GPU",
+   "sublabel": "unarbitrated port 7878",
+   "pos": [
+    300,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "child",
+   "type": "backend",
+   "label": "orphaned child",
+   "sublabel": "unsupervised PID",
+   "pos": [
+    560,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "leak",
+   "type": "external",
+   "label": "VRAM leak",
+   "sublabel": "84% GPU for 70 min",
+   "pos": [
+    830,
+    140
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "lock",
+   "type": "security",
+   "label": "instance_lock",
+   "sublabel": "check-then-act flaw",
+   "pos": [
+    40,
+    400
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "toctou",
+   "type": "security",
+   "label": "TOCTOU race",
+   "sublabel": "zombie PID lockouts",
+   "pos": [
+    300,
+    400
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "cards",
+   "type": "database",
+   "label": "card stores",
+   "sublabel": "unbounded JSONL write",
+   "pos": [
+    560,
+    400
+   ],
+   "size": [
+    170,
+    64
+   ]
+  },
+  {
+   "id": "crash",
+   "type": "external",
+   "label": "loop crash",
+   "sublabel": "JSONDecodeError partial",
+   "pos": [
+    830,
+    400
+   ],
+   "size": [
+    170,
+    64
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "c1",
+   "from": "loop",
+   "to": "gpu",
+   "label": "spawns"
+  },
+  {
+   "id": "c2",
+   "from": "gpu",
+   "to": "child",
+   "label": "unmonitored"
+  },
+  {
+   "id": "c3",
+   "from": "child",
+   "to": "leak",
+   "label": "burns VRAM",
+   "variant": "emphasis"
+  },
+  {
+   "id": "l1",
+   "from": "lock",
+   "to": "toctou",
+   "label": "race"
+  },
+  {
+   "id": "l2",
+   "from": "toctou",
+   "to": "cards",
+   "label": "corrupts"
+  },
+  {
+   "id": "l3",
+   "from": "cards",
+   "to": "crash",
+   "label": "terminates",
+   "variant": "emphasis"
+  }
+ ],
+ "cards": [
+  {
+   "dot": "rose",
+   "title": "Measured failure modes",
+   "items": [
+    "Orphaned lane child burned 84% GPU for 70 minutes (zero supervision)",
+    "Flawed instance lock allowed double-spawns and zombie lockouts",
+    "Unprotected JSON parsing crashed entire loop on partial file writes",
+    "Pytest test suites failing with unhandled plugin exceptions"
+   ]
+  }
+ ]
+}

@@ -138,7 +138,7 @@ specs["04b-coordination-after"] = spec(
  [comp("dag", "service", "active_task_dag.json", "Kahn-validated, frontier dispatch", 40, 300),
   comp("t3", "service", "T3 dag-comm-spec", "antigravity, DONE", 300, 140),
   comp("t4", "service", "T4 marlin-verify", "marlin, DONE", 300, 300),
-  comp("t5", "service", "T5 pilot-integration", "unblocked by T4", 300, 460),
+  comp("t5", "service", "T5 pilot-integration", "antigravity, DONE", 300, 460),
   comp("ledger", "database", "wrapup_ledger.jsonl", "bounded <=500 chars", 560, 300),
   comp("resume", "compute", "resume path", "reads last 3-5 entries", 830, 300)],
  [conn("d1", "dag", "t3"), conn("d2", "dag", "t4"), conn("d4", "t4", "t5", "", "emphasis"),
@@ -146,7 +146,54 @@ specs["04b-coordination-after"] = spec(
   conn("r1", "ledger", "resume", "context floor drop")],
  [card("green", "First cycle executed 2026-09-18", ["Their build unblocked my node; my completion unblocked theirs - zero ping-pong",
     "Three-edge protocol: DAG-declared tasks, articulation-first probes, cycle guards",
-    "F1 found: unguarded cross-seat re-claim (third check-then-act instance); fix pending"])])
+    "F1 resolved: TaskAlreadyClaimedError + --force prevents cross-seat re-claim race",
+    "All 5 tasks DONE on active DAG; lean resuming banner live in session monitor"])])
+
+specs["05a-lane-hardening-before"] = spec(
+ "Auditor lane execution - BEFORE (8 vulnerabilities & crash fragility)",
+ [comp("loop", "backend", "gemma_node_loop.py", "bare subprocesses", 40, 140),
+  comp("gpu", "backend", "RTX 5090 GPU", "unarbitrated port 7878", 300, 140),
+  comp("child", "backend", "orphaned child", "unsupervised PID", 560, 140),
+  comp("leak", "external", "VRAM leak", "84% GPU for 70 min", 830, 140),
+  comp("lock", "security", "instance_lock", "check-then-act flaw", 40, 400),
+  comp("toctou", "security", "TOCTOU race", "zombie PID lockouts", 300, 400),
+  comp("cards", "database", "card stores", "unbounded JSONL write", 560, 400),
+  comp("crash", "external", "loop crash", "JSONDecodeError partial", 830, 400)],
+ [conn("c1", "loop", "gpu", "spawns"),
+  conn("c2", "gpu", "child", "unmonitored"),
+  conn("c3", "child", "leak", "burns VRAM", "emphasis"),
+  conn("l1", "lock", "toctou", "race"),
+  conn("l2", "toctou", "cards", "corrupts"),
+  conn("l3", "cards", "crash", "terminates", "emphasis")],
+ [card("rose", "Measured failure modes", [
+   "Orphaned lane child burned 84% GPU for 70 minutes (zero supervision)",
+   "Flawed instance lock allowed double-spawns and zombie lockouts",
+   "Unprotected JSON parsing crashed entire loop on partial file writes",
+   "Pytest test suites failing with unhandled plugin exceptions"
+  ])])
+
+specs["05b-lane-hardening-after"] = spec(
+ "Auditor lane execution - AFTER (hardened guards & 100% green tests)",
+ [comp("loop", "backend", "gemma_node_loop.py", "parent supervision", 40, 140),
+  comp("guard", "security", "atomic instance_lock", "stale PID reclaim", 300, 140),
+  comp("proc", "backend", "supervised children", "bounded runtime", 560, 140),
+  comp("clean", "external", "clean lifecycle", "0 leaks, SIGTERM traps", 830, 140),
+  comp("safeio", "database", "safe JSON I/O", "trailing newline guards", 40, 400),
+  comp("triage", "backend", "curation_triage.py", "30d tombstone ledger", 300, 400),
+  comp("compact", "database", "lane compaction", "out/*.jsonl drained", 560, 400),
+  comp("suite", "security", "hardened tests", "22/22 unit tests green", 830, 400)],
+ [conn("g1", "loop", "guard", "atomic check"),
+  conn("g2", "guard", "proc", "supervised"),
+  conn("g3", "proc", "clean", "healthy", "emphasis"),
+  conn("s1", "safeio", "triage", "safe read"),
+  conn("s2", "triage", "compact", "drains piles"),
+  conn("s3", "compact", "suite", "verified", "emphasis")],
+ [card("emerald", "Hardened resilience (in vivo verified)", [
+   "8 critical failure modes audited, patched, and verified across all lanes",
+   "Atomic locking + parent PID supervision prevents orphaned GPU hogs",
+   "Partial-line trailing guards and atomic file replacement eliminate JSON corruption",
+   "Full test suite restored: 22/22 unit tests passing in 2.78s with zero failures"
+  ])])
 
 os.makedirs(OUT, exist_ok=True)
 for name, s in specs.items():

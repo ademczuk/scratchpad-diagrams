@@ -52,7 +52,7 @@
    "id": "t5",
    "type": "backend",
    "label": "T5 pilot-integration",
-   "sublabel": "unblocked by T4",
+   "sublabel": "antigravity, DONE",
    "pos": [
     300,
     460
@@ -132,7 +132,8 @@
    "items": [
     "Their build unblocked my node; my completion unblocked theirs - zero ping-pong",
     "Three-edge protocol: DAG-declared tasks, articulation-first probes, cycle guards",
-    "F1 found: unguarded cross-seat re-claim (third check-then-act instance); fix pending"
+    "F1 resolved: TaskAlreadyClaimedError + --force prevents cross-seat re-claim race",
+    "All 5 tasks DONE on active DAG; lean resuming banner live in session monitor"
    ]
   }
  ]
